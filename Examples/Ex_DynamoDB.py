@@ -1,6 +1,9 @@
 import boto3    # pip install boto3
 from botocore.exceptions import ClientError
 
+# aws configure 
+# Default region name [None]: us-east-1
+
 # Initialize the DynamoDB resource
 print("Initialize the DynamoDB resource")
 dynamodb = boto3.resource('dynamodb', endpoint_url="http://localhost:8000", region_name='us-east-1')  # Update with your region
