@@ -1,4 +1,5 @@
 from pymongo import MongoClient # pip install pymongo
+# Client MongoDB Compass
 
 # Establish connection to MongoDB
 print("Establish connection to MongoDB")
