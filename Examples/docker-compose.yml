@@ -1,45 +1,72 @@
 # version: "3.8"
+name: My-URL-Shortener
+
 services:
-  dynamodb:
-    image: "amazon/dynamodb-local:latest"
-    container_name: dynamodb
+  dynamodb-local:
+    image: amazon/dynamodb-local
+    container_name: dynamodb-local
     ports:
       - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb"
     volumes:
-      - "./docker/dynamodb:/home/dynamodblocal/data"
-    working_dir: /home/dynamodblocal
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    environment:
-      - AWS_ACCESS_KEY_ID=""
-      - AWS_SECRET_ACCESS_KEY=""
-      - AWS_SESSION_TOKEN=""
-      - AWS_DEFAULT_REGION=us-east-1
+      - dynamodb_data:/home/dynamodblocal/data
 
-  postgres:
-    container_name: container-pg
-    image: postgres
-    hostname: localhost
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+
+  postgresql:
+    image: postgres:latest
+    container_name: postgres
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: test_db
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-    restart: unless-stopped
+      - postgres_data:/var/lib/postgresql/data
 
-  pgadmin:
-    container_name: container-pgadmin
-    image: dpage/pgadmin4
-    depends_on:
-      - postgres
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
     ports:
-      - "5050:80"
+      - "9042:9042"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    restart: unless-stopped
+      CASSANDRA_CLUSTER_NAME: "TestCluster"
+      CASSANDRA_SEEDS: "127.0.0.1"
+      CASSANDRA_START_RPC: "true"
+    volumes:
+      - cassandra_data:/var/lib/cassandra
 
 volumes:
-  postgres-data:
+  dynamodb_data:
+  mongodb_data:
+  postgres_data:
+  cassandra_data:
+
+# Start the Containers:
+# docker-compose up -d
+#
+# Verify the Containers:
+# docker ps
+#
+# Access Services:
+# • DynamoDB Local: http://localhost:8000 for APIs.
+# • MongoDB: Connect via mongodb://localhost:27017.
+# • Redis: Connect via redis://localhost:6379.
+# • PostgreSQL: Connect via postgresql://admin:password@localhost:5432/mydb.
+#
+# Stop Containers:
+# docker-compose down
