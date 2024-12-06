@@ -93,5 +93,7 @@ if __name__ == "__main__":
     read_items()
     update_item()
     read_items()
-    delete_item()
-    read_items()
+    # delete_item()
+    # read_items()
+
+# DynamoDB – Tables, Items, and Attributes
