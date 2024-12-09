@@ -1,2 +1,3 @@
 
-Examples/docker/dynamodb/shared-local-instance.db
+Examples/docker
+Examples/__pycache__
