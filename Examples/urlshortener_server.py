@@ -14,9 +14,51 @@ def handle_post():
 
 # Store URL mappings in memory (in production, use a database)
 url_mappings = {}
+# Rate limiting configuration
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+# Store request counts per IP with timestamps
+# Format: {ip_address: [(timestamp1, count1), (timestamp2, count2), ...]}
+request_history = defaultdict(list)
+
+# Rate limit settings
+RATE_LIMIT = 10  # requests
+TIME_WINDOW = 60  # seconds
+
+def is_rate_limited(ip_address):
+    """Check if an IP address has exceeded the rate limit."""
+    now = datetime.now()
+    cutoff_time = now - timedelta(seconds=TIME_WINDOW)
+    
+    # Clean up old entries
+    request_history[ip_address] = [
+        (timestamp, count) for timestamp, count in request_history[ip_address] 
+        if timestamp > cutoff_time
+    ]
+    
+    # Calculate total requests in time window
+    total_requests = sum(count for _, count in request_history[ip_address])
+    
+    # Update request history
+    if request_history[ip_address]:
+        last_timestamp, count = request_history[ip_address][-1]
+        if last_timestamp.timestamp() // 1 == now.timestamp() // 1:
+            request_history[ip_address][-1] = (last_timestamp, count + 1)
+        else:
+            request_history[ip_address].append((now, 1))
+    else:
+        request_history[ip_address].append((now, 1))
+    
+    return total_requests >= RATE_LIMIT
 
 @app.route("/urls", methods=["POST"])
 def create_short_url():
+    # Check rate limit
+    client_ip = request.remote_addr
+    if is_rate_limited(client_ip):
+        return jsonify({"error": "Rate limit exceeded. Please try again later."}), 429
+
     data = request.get_json()
     
     # Validate request
@@ -42,6 +84,11 @@ def create_short_url():
 
 @app.route("/urls/<short_id>", methods=["GET"])
 def redirect_to_long_url(short_id):
+    # Check rate limit
+    client_ip = request.remote_addr
+    if is_rate_limited(client_ip):
+        return jsonify({"error": "Rate limit exceeded. Please try again later."}), 429
+
     # Check if short URL ID exists in mappings
     if short_id not in url_mappings:
         return jsonify({"error": "Short URL not found"}), 404
