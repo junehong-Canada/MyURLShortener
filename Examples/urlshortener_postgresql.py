@@ -126,6 +126,33 @@ def create_urls_table(conn):
         conn.rollback()
         print("Error creating URLs table:", e)
 
+def get_unused_short_url(conn):
+    """Get an unused short URL from the database."""
+    try:
+        with conn.cursor() as cur:
+            query = "SELECT short_url FROM urls WHERE used = FALSE LIMIT 1;"
+            cur.execute(query)
+            result = cur.fetchone()
+            if result:
+                return result[0].strip()  # Remove padding from CHAR(7)
+            return None
+    except Exception as e:
+        print("Error getting unused short URL:", e)
+        return None
+
+def mark_url_used(conn, short_url):
+    """Mark a short URL as used."""
+    try:
+        with conn.cursor() as cur:
+            query = "UPDATE urls SET used = TRUE WHERE short_url = %s;"
+            cur.execute(query, (short_url,))
+            conn.commit()
+            return True
+    except Exception as e:
+        conn.rollback()
+        print("Error marking URL as used:", e)
+        return False
+
 # Example usage
 if __name__ == "__main__":
     conn = connect_to_db()

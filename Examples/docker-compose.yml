@@ -38,23 +38,23 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  cassandra:
-    image: cassandra:latest
-    container_name: cassandra
-    ports:
-      - "9042:9042"
-    environment:
-      CASSANDRA_CLUSTER_NAME: "TestCluster"
-      CASSANDRA_SEEDS: "127.0.0.1"
-      CASSANDRA_START_RPC: "true"
-    volumes:
-      - cassandra_data:/var/lib/cassandra
+  # cassandra:
+  #   image: cassandra:latest
+  #   container_name: cassandra
+  #   ports:
+  #     - "9042:9042"
+  #   environment:
+  #     CASSANDRA_CLUSTER_NAME: "TestCluster"
+  #     CASSANDRA_SEEDS: "127.0.0.1"
+  #     CASSANDRA_START_RPC: "true"
+  #   volumes:
+  #     - cassandra_data:/var/lib/cassandra
 
 volumes:
   dynamodb_data:
   mongodb_data:
   postgres_data:
-  cassandra_data:
+  # cassandra_data:
 
 # Start the Containers:
 # docker-compose up -d
