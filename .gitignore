@@ -1,3 +1,4 @@
 
 Examples/docker
 Examples/__pycache__
+.env
