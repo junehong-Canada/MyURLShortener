@@ -3,3 +3,4 @@ Examples/docker
 Examples/__pycache__
 .env
 *.pyc
+.DS_Store
