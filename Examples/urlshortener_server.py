@@ -46,6 +46,7 @@ def is_rate_limited(ip_address):
         if last_timestamp.timestamp() // 1 == now.timestamp() // 1:
             request_history[ip_address][-1] = (last_timestamp, count + 1)
         else:
+            
             request_history[ip_address].append((now, 1))
     else:
         request_history[ip_address].append((now, 1))
